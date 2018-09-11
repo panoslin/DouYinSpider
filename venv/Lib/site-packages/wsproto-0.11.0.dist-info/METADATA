@@ -1,0 +1,27 @@
+Metadata-Version: 2.0
+Name: wsproto
+Version: 0.11.0
+Summary: WebSockets state-machine based protocol implementation
+Home-page: UNKNOWN
+Author: Benno Rice
+Author-email: benno@jeamland.net
+License: MIT
+Description-Content-Type: UNKNOWN
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 2
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Classifier: Programming Language :: Python :: Implementation :: PyPy
+Requires-Dist: h11 (~=0.7.0)
+Requires-Dist: enum34 (<2,>=1.0.4); python_version == "2.7" or python_version == "3.3"
+
+UNKNOWN
+
+
