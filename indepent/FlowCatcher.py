@@ -3,20 +3,29 @@ import redis
 import requests
 import os
 import uuid
-import time
+import configparser
 
-if not os.path.exists('Download'):
-    os.makedirs('Download')
-r = redis.Redis(host='10.16.4.216', port=6379, db=8)
+# Download videos to the dirctory 'Download'
+PathDownload = 'Download'
+if not os.path.exists(PathDownload):
+    os.makedirs(PathDownload)
+# Connection to redis db
+config = configparser.ConfigParser()
+config.read("Redis.ini")
+host = config.get("redis", "host")
+port = config.getint("redis", "port")
+db = config.getint("redis", "db")
+r = redis.Redis(host=host, port=port, db=db)
 
 
 def response(flow):
+    # capture request that return next 6 videos info
     url = 'aweme/v1/feed/'
     if url in flow.request.url:
         text = flow.response.text
         data = json.loads(text)['aweme_list']
         for aweme in data:
-            if aweme['is_ads']:
+            if aweme['is_ads']: # identify whether if the current video is commercial
                 res = dict()
                 res['is_ads'] = aweme['is_ads']
                 res['avatar_url'] = aweme['author']['avatar_larger']['url_list'][0]
@@ -36,13 +45,14 @@ def response(flow):
                 res['height'] = aweme['video']['height']
                 res['width'] = aweme['video']['width']
                 res['uid'] = str(uuid.uuid1())
+                # Download the video
                 with open('Download/{video_name}.mp4'.format(video_name=res['uid']), 'wb') as video:
                     video.write(requests.get(res['video_url']).content)
-                print(json.dumps(res, sort_keys=True, indent='\n'))
-                while True:
+                while True:# Get the size of the video when it is downloaded completely
                     try:
-                        res['size']=os.path.getsize('Download/{video_name}.mp4'.format(video_name=res['uid']))
+                        res['size'] = os.path.getsize('Download/{video_name}.mp4'.format(video_name=res['uid']))
                         break
                     except Exception:
                         continue
+                # Insert the data into redis database
                 r.hset('ame:data:Ver1', res['aweme_id'], res)
