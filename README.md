@@ -59,4 +59,5 @@ indepent目录下的本人的代码，通过安卓模拟器，抓取抖音对应
     >python commander.py
     >python AppiumControl.py
     >```
-此时模拟器便被Appium控制，自行打开抖音并且开始没日没夜的刷抖音。 
+    >此时模拟器便被Appium控制，自行打开抖音并且开始没日没夜的刷抖音。  
+    >   <img src="https://github.com/panoslin/DouYinSpider/blob/master/pic/douyin.jpg" width="300">
