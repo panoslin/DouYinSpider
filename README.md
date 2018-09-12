@@ -48,8 +48,10 @@ indepent目录下的本人的代码，通过安卓模拟器，抓取抖音对应
     >adb devices -l
     >adb install douyin.apk
     >```
-    >第一步连接模拟器端口，第二步显示是否连接成功，第三步安装抖音App  
-    >
+    >第一步连接模拟器端口，如果端口连接不成功，可到ttmnq\deployed\TianTian.vbox中查看host端口（hostport）  
+    >第二步显示是否连接成功，成功则会显示已连接设备信息  
+    ><img src="https://github.com/panoslin/DouYinSpider/blob/master/pic/adb_devices.jpg" width="600">  
+    >第三步安装抖音App  
     >返回结果应该如下图表示连接成功：
     ![adb](https://github.com/panoslin/DouYinSpider/blob/master/pic/adb.jpg)
 2. 运行Appium服务器(默认端口*4723*)
