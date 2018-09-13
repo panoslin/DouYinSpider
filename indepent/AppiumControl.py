@@ -15,40 +15,56 @@ def swipe():
     swipe on the emulator
     :return:
     """
-    time.sleep(2)
+    time.sleep(1)
     TouchAction(driver).press(x=randint(200, 500), y=940).move_to(x=randint(200, 500), y=200).release().perform()
 
+def StartDriver():
+    """
+    connect to the appium server
+    :return: driver
+    """
+    global StartTime
+    StartTime = int(time.time())
+    # The necessary parms to convert to appium server
+    caps = {}
+    caps["platformName"] = "Android"
+    caps["deviceName"] = "SAMSUNG_SM_N900A"
+    # Next two ele can be found by bash command:
+    # adb logcat ActivityManager:I*:s
+    caps["appPackage"] = "com.ss.android.ugc.aweme"  # DouYin package adress
+    caps["appActivity"] = ".main.MainActivity"  # DouYin lauching activity
+    # Remote driver connection to appium server
+    global driver
+    driver = webdriver.Remote("http://localhost:4723/wd/hub", caps)
+    swipe()
+
+def main():
+    """
+    The main swipe action, restart every 30mins
+    :return:
+    """
+    StartDriver()
+    # Start to loop the action chain
+    while (int(time.time()) - StartTime) % 1800 != 0:  # Restart every 30mins
+        next = choice(
+            ['fit', 'Notfit', 'Notfit', 'Notfit', 'Notfit', 'Notfit', 'Notfit', 'Notfit', 'Notfit', 'Notfit',
+             'Notfit', 'Notfit'])  # one fit in 2 request(i.e. 12 videos)
+        if next == 'fit':
+            time.sleep(randint(30, 80))
+            swipe()
+        elif next == 'Notfit':
+            swipe()
+    driver.close_app()
 
 if __name__ == '__main__':
     # This sample code uses the Appium python client
     # pip install Appium-Python-Client
-    # Then you can paste this into a file and simply run with Python
+    # Start to loop the action chain
+    # and capture any errors occur
     while True:
-        StartTime = int(time.time())
-        #The necessary parms to convert to appium server
-        caps = {}
-        caps["platformName"] = "Android"
-        caps["deviceName"] = "SAMSUNG_SM_N900A"
-        # Next two ele can be found by bash command:
-        # adb logcat ActivityManager:I*:s
-        caps["appPackage"] = "com.ss.android.ugc.aweme"#DouYin package adress
-        caps["appActivity"] = ".main.MainActivity"#DouYin lauching activity
-        # Remote driver connection to appium server
-        driver = webdriver.Remote("http://localhost:4723/wd/hub", caps)
-        swipe()
-        # Start to loop the action chain
-        while (int(time.time()) - StartTime) % 1800 != 0:# Restart every 30mins
-            next = choice(
-                ['fit', 'Notfit', 'Notfit', 'Notfit', 'Notfit', 'Notfit', 'Notfit', 'Notfit', 'Notfit', 'Notfit',
-                 'Notfit', 'Notfit'])  # one fit in 2 request(i.e. 12 videos)
-            if next == 'fit':
-                time.sleep(randint(10, 40))
-                TouchAction(driver).tap(x=658, y=452).perform()
-                swipe()
-                swipe()
-                time.sleep(2)
-                TouchAction(driver).tap(x=50, y=109).perform()
-                swipe()
-
-            elif next == 'Notfit':
-                swipe()
+        try:
+            main()
+        except Exception as e:
+            print('Exception raised {Exception}'.format(Exception=e))
+            StartDriver()
+            continue
