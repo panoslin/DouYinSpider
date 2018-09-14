@@ -46,18 +46,17 @@ indepent目录下的本人的代码，通过安卓模拟器，抓取抖音对应
     >```bash
     >adb connect 127.0.0.1:6555
     >adb devices -l
-    >adb install douyin.apk
     >```
     >第一步连接模拟器端口，如果端口连接不成功，可到ttmnq\deployed\TianTian.vbox中查看host端口（hostport）  
     >第二步显示是否连接成功，成功则会显示已连接设备信息  
-    >第三步安装抖音App  
     >返回结果应该如下图表示连接成功：
-    ![adb](https://github.com/panoslin/DouYinSpider/blob/master/pic/adb.jpg)
-2. 安装Mitmproxy证书  
+    ![adb](https://github.com/panoslin/DouYinSpider/blob/master/pic/adb.jpg)  
+2. 通过模拟器内的“靠谱游戏”安装抖音App  
+3. 安装Mitmproxy证书  
     > * 将C:\Users\UserName\\.mitmproxy 目录下面的mitmproxy-ca-cert.cer拖动到模拟器界面上安装证书  
     > * 双击运行安装mitmproxy-ca-cert.p12，选择证书存储位置为“受信任的根证书颁发机构”
-3. 运行Appium服务器(默认端口*4723*)
-4. 分别开启两个命令行窗口，激活虚拟环境，进入indepent目录，命令行输入
+4. 运行Appium服务器(默认端口*4723*)
+5. 分别开启两个命令行窗口，激活虚拟环境，进入indepent目录，命令行输入
     >```bash
     >python AppiumControl.py
     >mitmdump -s .\FlowCatcher.py
