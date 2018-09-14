@@ -45,16 +45,8 @@ class Action():
         :return: None
         """
         # Start to loop the action chain
-        while (int(time.time()) - self.StartTime) % 600 != 0:  # Restart every 30mins
-            next = randint(1, 12)  # one fit in 2 request(i.e. 12 videos)
-            if next == 12:
-                print('Fit')
-                time.sleep(randint(30, 80))
-                self.swipe()
-            else:
-                print('Notfit', end='\t')
-                self.swipe()
-        self.driver.close_app()
+        while True:
+            self.driver.reset()
 
 
 if __name__ == '__main__':
@@ -65,7 +57,6 @@ if __name__ == '__main__':
     action = Action()
     while True:
         try:
-
             action.main()
         except Exception as e:
             print('Exception raised {Exception}'.format(Exception=e))
