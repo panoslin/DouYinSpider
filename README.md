@@ -13,7 +13,6 @@ indepent目录下的本人的代码，通过安卓模拟器，抓取抖音对应
 >
 >* Python3
 >* Android environment
->* Fiddler/Charles
 >* Appium
 >* Mitmproxy
 
@@ -31,12 +30,10 @@ indepent目录下的本人的代码，通过安卓模拟器，抓取抖音对应
     >       * 夜神模拟器
     >       * 领航模拟器
     >       * 这里使用[天天模拟器](http://www.kpzs.com/topic/ttmnqsgou/)作为测试
-2. Fiddler/Charles（收费）
-    >    * 两个均为抓包工具，这里使用[Fiddler](https://www.telerik.com/download/fiddler)
-3. Appium
+2. Appium
     >    * [Appium](https://github.com/appium/appium-desktop/releases)，为类似于Selenium的移动端测试工具，建议安装桌面版
     >       <img src="https://github.com/panoslin/DouYinSpider/blob/master/pic/AppiumDownload.png" width="600">
-4. Python 依赖库：
+3. Python 依赖库：
     >```bash
     >pip install -r requirement.txt
     >```
