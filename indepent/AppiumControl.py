@@ -3,10 +3,8 @@
 # Created by panos on 2018/8/22
 # IDE: PyCharm
 
-from random import randint
 import time
 from appium import webdriver
-from appium.webdriver.common.touch_action import TouchAction
 
 
 class Action():
@@ -43,8 +41,7 @@ class Action():
 if __name__ == '__main__':
     # This sample code uses the Appium python client
     # pip install Appium-Python-Client
-    # Start to loop the action chain
-    # and capture any errors occur
+    # capture any errors occur
     action = Action()
     while True:
         try:
