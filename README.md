@@ -1,6 +1,6 @@
 DouYinSpider
 ===============
-本项目包含两个抖音爬虫：  
+此Github包含两个抖音爬虫：  
 第一个为github用户[loadchange](https://github.com/LoadChange/amemv-crawler)的代码，位于amemv-crawler目录下：
 ```
 “ 可以下载指定抖音用户的全部视频(含收藏)，也可以下载指定主题(挑战)或音乐下的全部视频。”
