@@ -24,7 +24,7 @@ indepent目录下的本人的代码，通过安卓模拟器，抓取抖音对应
 
 ## 环境安装
 1. Android environment
-    >   * 建议通过[Android Studio](https://developer.android.google.cn/studio/)安装安卓开发环境或者[Android environment](http://appium.io/docs/cn/appium-setup/running-on-windows/)
+    >   * 建议通过[Android Studio](https://developer.android.google.cn/studio/)安装安卓开发环境
     >   * 安卓模拟器: 常用的模拟器有
     >       * genymotion（收费）
     >       * 天天模拟器
