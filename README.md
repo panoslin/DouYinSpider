@@ -4,8 +4,8 @@ DouYinSpider
 第一个为github用户[loadchange](https://github.com/LoadChange/amemv-crawler)的代码，位于amemv-crawler目录下：
 ```
 “ 可以下载指定抖音用户的全部视频(含收藏)，也可以下载指定主题(挑战)或音乐下的全部视频。”
-```
-但是不能够获取抖音视频的详细信息如小心心数量、评论数目、视频时长、玩家具体信息等  
+```  
+其优势为爬取速度快，系统资源占用少，但是不能够筛选特定的视频，如仅下载此项目的 **竖屏广告** 
 
 indepent目录下的本人的代码，通过安卓模拟器，抓取抖音对应视频及视频数据，此项目抓取的目标视频为抖音随机出现的 **竖屏广告** 
 实际使用时可以根据自身 **测试学习** 需求修改FlowCatch.py逻辑
@@ -20,7 +20,7 @@ indepent目录下的本人的代码，通过安卓模拟器，抓取抖音对应
 
 ## 注意
 
-大家好，这个项目是一个**练手项目**，源码仅作为和大家一起**学习Python**使用，你可以免费: 拷贝、分发和派生当前源码。你不可以用于*商业目的*及其他*恶意用途*。
+这个项目是一个**练手项目**，源码仅作为和大家一起**学习Python**使用，你可以免费: 拷贝、分发和派生当前源码。你不可以用于*商业目的*及其他*恶意用途*。
 
 ## 环境安装
 1. Android environment
@@ -53,11 +53,13 @@ indepent目录下的本人的代码，通过安卓模拟器，抓取抖音对应
     >第三步安装抖音App  
     >返回结果应该如下图表示连接成功：
     ![adb](https://github.com/panoslin/DouYinSpider/blob/master/pic/adb.jpg)
-2. 运行Appium服务器(默认端口*4723*)
-3. 进入indepent目录，命令行输入
+2. 安装Mitmproxy证书  
+    > 将C:\Users\UserName\\.mitmproxy 目录下面的mitmproxy-ca-cert.cer拖动到模拟器界面上安装证书
+3. 运行Appium服务器(默认端口*4723*)
+4. 分别开启两个命令行窗口，激活虚拟环境，进入indepent目录，命令行输入
     >```bash
-    >python commander.py
     >python AppiumControl.py
+    >mitmdump -s .\FlowCatcher.py
     >```
     >此时模拟器便被Appium控制，自行打开抖音并且开始没日没夜的刷抖音。  
     >   <img src="https://github.com/panoslin/DouYinSpider/blob/master/pic/douyin.jpg" width="300">
