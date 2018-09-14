@@ -31,10 +31,11 @@ class Action():
 
     def main(self):
         """
-        The main swipe action, restart every 30mins
+        Rsstart over and over again
+        cause every time it restart, it will get one request and
+        return one response which is in json format with infos about 6 upcoming videos
         :return: None
         """
-        # Start to loop the action chain
         while True:
             self.driver.reset()
 
