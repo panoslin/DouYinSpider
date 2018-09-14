@@ -28,16 +28,6 @@ class Action():
         # Remote driver connection to appium server
         self.driver = webdriver.Remote("http://localhost:4723/wd/hub", caps)
         print('Connected to the appium server')
-        self.swipe()
-
-    def swipe(self):
-        """
-        swipe on the emulator
-        :return:
-        """
-        time.sleep(1)
-        self.driver.swipe(randint(200, 500), 100 + 840, randint(200, 500), 100)
-        # TouchAction(driver).press(x=randint(200, 500), y=940).move_to(x=randint(200, 500), y=100).release().perform()
 
     def main(self):
         """
