@@ -35,6 +35,7 @@ class Action():
         :return: None
         """
         while True:
+            time.sleep(5)
             self.driver.reset()
 
 
