@@ -23,7 +23,8 @@ indepent目录下的本人的代码，通过安卓模拟器，抓取抖音对应
 
 ## 环境安装
 1. Android environment
-    >   * 建议通过[Android Studio](https://developer.android.google.cn/studio/)安装安卓开发环境
+    >   * 建议通过[Android Studio](https://developer.android.google.cn/studio/)安装JDK，配置[环境变量](https://blog.csdn.net/zeternityyt/article/details/79655150)
+    >   * 安装JAVA [SDK](https://blog.csdn.net/u012382791/article/details/50891044)
     >   * 安卓模拟器: 常用的模拟器有
     >       * genymotion（收费）
     >       * 天天模拟器
