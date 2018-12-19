@@ -106,7 +106,7 @@ class Database:
             'createtime': data['ts'],
             'updatetime': data['ts'],
             'broadcasttime': time.strftime('%Y%m%d', time.localtime(data['broadcast_time'])),
-            'tvcbookid': lastrowid,
+            'video_id': lastrowid,
             'infofrom': infofrom,
             'crawname': crawname,
             'broadcastid': data['aweme_id'],
@@ -124,12 +124,12 @@ class Database:
         }
 
         ES = (
-            "INSERT INTO {table} ( `createtime`, `updatetime`, `broadcasttime`, `tvcbookid`, `infofrom`, "
+            "INSERT INTO {table} ( `createtime`, `updatetime`, `broadcasttime`, `video_id`, `infofrom`, "
             "`crawname`, `broadcastid`, `broadcastname`, `broadcastdesc`, `broadcastauthorid`, "
             "`broadcastauthorname`, `language`, `region`, `likes`, `comments`, `alljson`, "
             "`duration`, `vertical` ) "
             "VALUES "
-            "( %(createtime)s, %(updatetime)s, %(broadcasttime)s, %(tvcbookid)s, %(infofrom)s, "
+            "( %(createtime)s, %(updatetime)s, %(broadcasttime)s, %(video_id)s, %(infofrom)s, "
             "%(crawname)s, %(broadcastid)s, %(broadcastname)s, %(broadcastdesc)s, %(broadcastauthorid)s, "
             "%(broadcastauthorname)s, %(language)s, %(region)s, %(likes)s, %(comments)s, %(alljson)s, "
             "%(duration)s, %(vertical)s );".format(table=self.tables[2]))
