@@ -22,12 +22,12 @@ __all__ = [
 ]
 
 #=============================================================================
-# master containing all identifiable hashes
+# main containing all identifiable hashes
 #=============================================================================
-def _load_master_config():
+def _load_main_config():
     from passlib.registry import list_crypt_handlers
 
-    # get master list
+    # get main list
     schemes = list_crypt_handlers()
 
     # exclude the ones we know have ambiguous or greedy identify() methods.
@@ -63,7 +63,7 @@ def _load_master_config():
 
     # return config
     return dict(schemes=schemes, default="sha256_crypt")
-master_context = LazyCryptContext(onload=_load_master_config)
+main_context = LazyCryptContext(onload=_load_main_config)
 
 #=============================================================================
 # for quickly bootstrapping new custom applications

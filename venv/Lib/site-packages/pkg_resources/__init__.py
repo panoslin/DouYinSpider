@@ -557,9 +557,9 @@ class WorkingSet:
             self.add_entry(entry)
 
     @classmethod
-    def _build_master(cls):
+    def _build_main(cls):
         """
-        Prepare the master working set.
+        Prepare the main working set.
         """
         ws = cls()
         try:
@@ -3096,9 +3096,9 @@ def _initialize(g=globals()):
 
 
 @_call_aside
-def _initialize_master_working_set():
+def _initialize_main_working_set():
     """
-    Prepare the master working set and make the ``require()``
+    Prepare the main working set and make the ``require()``
     API available.
 
     This function has explicit effects on the global state
@@ -3108,7 +3108,7 @@ def _initialize_master_working_set():
     Invocation by other packages is unsupported and done
     at their own risk.
     """
-    working_set = WorkingSet._build_master()
+    working_set = WorkingSet._build_main()
     _declare_state('object', working_set=working_set)
 
     require = working_set.require

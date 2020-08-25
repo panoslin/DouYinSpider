@@ -9,11 +9,11 @@ from redis.exceptions import (ConnectionError, ResponseError, ReadOnlyError,
 from redis._compat import iteritems, nativestr, xrange
 
 
-class MasterNotFoundError(ConnectionError):
+class MainNotFoundError(ConnectionError):
     pass
 
 
-class SlaveNotFoundError(ConnectionError):
+class SubordinateNotFoundError(ConnectionError):
     pass
 
 
@@ -41,28 +41,28 @@ class SentinelManagedConnection(Connection):
     def connect(self):
         if self._sock:
             return  # already connected
-        if self.connection_pool.is_master:
-            self.connect_to(self.connection_pool.get_master_address())
+        if self.connection_pool.is_main:
+            self.connect_to(self.connection_pool.get_main_address())
         else:
-            for slave in self.connection_pool.rotate_slaves():
+            for subordinate in self.connection_pool.rotate_subordinates():
                 try:
-                    return self.connect_to(slave)
+                    return self.connect_to(subordinate)
                 except ConnectionError:
                     continue
-            raise SlaveNotFoundError  # Never be here
+            raise SubordinateNotFoundError  # Never be here
 
     def read_response(self):
         try:
             return super(SentinelManagedConnection, self).read_response()
         except ReadOnlyError:
-            if self.connection_pool.is_master:
-                # When talking to a master, a ReadOnlyError when likely
-                # indicates that the previous master that we're still connected
-                # to has been demoted to a slave and there's a new master.
+            if self.connection_pool.is_main:
+                # When talking to a main, a ReadOnlyError when likely
+                # indicates that the previous main that we're still connected
+                # to has been demoted to a subordinate and there's a new main.
                 # calling disconnect will force the connection to re-query
                 # sentinel during the next connect() attempt.
                 self.disconnect()
-                raise ConnectionError('The previous master is now a slave')
+                raise ConnectionError('The previous main is now a subordinate')
             raise
 
 
@@ -77,7 +77,7 @@ class SentinelConnectionPool(ConnectionPool):
     def __init__(self, service_name, sentinel_manager, **kwargs):
         kwargs['connection_class'] = kwargs.get(
             'connection_class', SentinelManagedConnection)
-        self.is_master = kwargs.pop('is_master', True)
+        self.is_main = kwargs.pop('is_main', True)
         self.check_connection = kwargs.pop('check_connection', False)
         super(SentinelConnectionPool, self).__init__(**kwargs)
         self.connection_kwargs['connection_pool'] = weakref.proxy(self)
@@ -88,49 +88,49 @@ class SentinelConnectionPool(ConnectionPool):
         return "%s<service=%s(%s)" % (
             type(self).__name__,
             self.service_name,
-            self.is_master and 'master' or 'slave',
+            self.is_main and 'main' or 'subordinate',
         )
 
     def reset(self):
         super(SentinelConnectionPool, self).reset()
-        self.master_address = None
-        self.slave_rr_counter = None
+        self.main_address = None
+        self.subordinate_rr_counter = None
 
-    def get_master_address(self):
-        master_address = self.sentinel_manager.discover_master(
+    def get_main_address(self):
+        main_address = self.sentinel_manager.discover_main(
             self.service_name)
-        if self.is_master:
-            if self.master_address is None:
-                self.master_address = master_address
-            elif master_address != self.master_address:
-                # Master address changed, disconnect all clients in this pool
+        if self.is_main:
+            if self.main_address is None:
+                self.main_address = main_address
+            elif main_address != self.main_address:
+                # Main address changed, disconnect all clients in this pool
                 self.disconnect()
-        return master_address
+        return main_address
 
-    def rotate_slaves(self):
-        "Round-robin slave balancer"
-        slaves = self.sentinel_manager.discover_slaves(self.service_name)
-        if slaves:
-            if self.slave_rr_counter is None:
-                self.slave_rr_counter = random.randint(0, len(slaves) - 1)
-            for _ in xrange(len(slaves)):
-                self.slave_rr_counter = (
-                    self.slave_rr_counter + 1) % len(slaves)
-                slave = slaves[self.slave_rr_counter]
-                yield slave
-        # Fallback to the master connection
+    def rotate_subordinates(self):
+        "Round-robin subordinate balancer"
+        subordinates = self.sentinel_manager.discover_subordinates(self.service_name)
+        if subordinates:
+            if self.subordinate_rr_counter is None:
+                self.subordinate_rr_counter = random.randint(0, len(subordinates) - 1)
+            for _ in xrange(len(subordinates)):
+                self.subordinate_rr_counter = (
+                    self.subordinate_rr_counter + 1) % len(subordinates)
+                subordinate = subordinates[self.subordinate_rr_counter]
+                yield subordinate
+        # Fallback to the main connection
         try:
-            yield self.get_master_address()
-        except MasterNotFoundError:
+            yield self.get_main_address()
+        except MainNotFoundError:
             pass
-        raise SlaveNotFoundError('No slave found for %r' % (self.service_name))
+        raise SubordinateNotFoundError('No subordinate found for %r' % (self.service_name))
 
     def _checkpid(self):
         if self.pid != os.getpid():
             self.disconnect()
             self.reset()
             self.__init__(self.service_name, self.sentinel_manager,
-                          is_master=self.is_master,
+                          is_main=self.is_main,
                           check_connection=self.check_connection,
                           connection_class=self.connection_class,
                           max_connections=self.max_connections,
@@ -143,10 +143,10 @@ class Sentinel(object):
 
     >>> from redis.sentinel import Sentinel
     >>> sentinel = Sentinel([('localhost', 26379)], socket_timeout=0.1)
-    >>> master = sentinel.master_for('mymaster', socket_timeout=0.1)
-    >>> master.set('foo', 'bar')
-    >>> slave = sentinel.slave_for('mymaster', socket_timeout=0.1)
-    >>> slave.get('foo')
+    >>> main = sentinel.main_for('mymain', socket_timeout=0.1)
+    >>> main.set('foo', 'bar')
+    >>> subordinate = sentinel.subordinate_for('mymain', socket_timeout=0.1)
+    >>> subordinate.get('foo')
     'bar'
 
     ``sentinels`` is a list of sentinel nodes. Each node is represented by
@@ -193,66 +193,66 @@ class Sentinel(object):
             type(self).__name__,
             ','.join(sentinel_addresses))
 
-    def check_master_state(self, state, service_name):
-        if not state['is_master'] or state['is_sdown'] or state['is_odown']:
+    def check_main_state(self, state, service_name):
+        if not state['is_main'] or state['is_sdown'] or state['is_odown']:
             return False
         # Check if our sentinel doesn't see other nodes
         if state['num-other-sentinels'] < self.min_other_sentinels:
             return False
         return True
 
-    def discover_master(self, service_name):
+    def discover_main(self, service_name):
         """
-        Asks sentinel servers for the Redis master's address corresponding
+        Asks sentinel servers for the Redis main's address corresponding
         to the service labeled ``service_name``.
 
-        Returns a pair (address, port) or raises MasterNotFoundError if no
-        master is found.
+        Returns a pair (address, port) or raises MainNotFoundError if no
+        main is found.
         """
         for sentinel_no, sentinel in enumerate(self.sentinels):
             try:
-                masters = sentinel.sentinel_masters()
+                mains = sentinel.sentinel_mains()
             except (ConnectionError, TimeoutError):
                 continue
-            state = masters.get(service_name)
-            if state and self.check_master_state(state, service_name):
+            state = mains.get(service_name)
+            if state and self.check_main_state(state, service_name):
                 # Put this sentinel at the top of the list
                 self.sentinels[0], self.sentinels[sentinel_no] = (
                     sentinel, self.sentinels[0])
                 return state['ip'], state['port']
-        raise MasterNotFoundError("No master found for %r" % (service_name,))
+        raise MainNotFoundError("No main found for %r" % (service_name,))
 
-    def filter_slaves(self, slaves):
-        "Remove slaves that are in an ODOWN or SDOWN state"
-        slaves_alive = []
-        for slave in slaves:
-            if slave['is_odown'] or slave['is_sdown']:
+    def filter_subordinates(self, subordinates):
+        "Remove subordinates that are in an ODOWN or SDOWN state"
+        subordinates_alive = []
+        for subordinate in subordinates:
+            if subordinate['is_odown'] or subordinate['is_sdown']:
                 continue
-            slaves_alive.append((slave['ip'], slave['port']))
-        return slaves_alive
+            subordinates_alive.append((subordinate['ip'], subordinate['port']))
+        return subordinates_alive
 
-    def discover_slaves(self, service_name):
-        "Returns a list of alive slaves for service ``service_name``"
+    def discover_subordinates(self, service_name):
+        "Returns a list of alive subordinates for service ``service_name``"
         for sentinel in self.sentinels:
             try:
-                slaves = sentinel.sentinel_slaves(service_name)
+                subordinates = sentinel.sentinel_subordinates(service_name)
             except (ConnectionError, ResponseError, TimeoutError):
                 continue
-            slaves = self.filter_slaves(slaves)
-            if slaves:
-                return slaves
+            subordinates = self.filter_subordinates(subordinates)
+            if subordinates:
+                return subordinates
         return []
 
-    def master_for(self, service_name, redis_class=StrictRedis,
+    def main_for(self, service_name, redis_class=StrictRedis,
                    connection_pool_class=SentinelConnectionPool, **kwargs):
         """
-        Returns a redis client instance for the ``service_name`` master.
+        Returns a redis client instance for the ``service_name`` main.
 
-        A SentinelConnectionPool class is used to retrive the master's
+        A SentinelConnectionPool class is used to retrive the main's
         address before establishing a new connection.
 
-        NOTE: If the master's address has changed, any cached connections to
-        the old master are closed.
+        NOTE: If the main's address has changed, any cached connections to
+        the old main are closed.
 
         By default clients will be a redis.StrictRedis instance. Specify a
         different class to the ``redis_class`` argument if you desire
@@ -265,18 +265,18 @@ class Sentinel(object):
         passed to this class and passed to the connection pool as keyword
         arguments to be used to initialize Redis connections.
         """
-        kwargs['is_master'] = True
+        kwargs['is_main'] = True
         connection_kwargs = dict(self.connection_kwargs)
         connection_kwargs.update(kwargs)
         return redis_class(connection_pool=connection_pool_class(
             service_name, self, **connection_kwargs))
 
-    def slave_for(self, service_name, redis_class=StrictRedis,
+    def subordinate_for(self, service_name, redis_class=StrictRedis,
                   connection_pool_class=SentinelConnectionPool, **kwargs):
         """
-        Returns redis client instance for the ``service_name`` slave(s).
+        Returns redis client instance for the ``service_name`` subordinate(s).
 
-        A SentinelConnectionPool class is used to retrive the slave's
+        A SentinelConnectionPool class is used to retrive the subordinate's
         address before establishing a new connection.
 
         By default clients will be a redis.StrictRedis instance. Specify a
@@ -290,7 +290,7 @@ class Sentinel(object):
         passed to this class and passed to the connection pool as keyword
         arguments to be used to initialize Redis connections.
         """
-        kwargs['is_master'] = False
+        kwargs['is_main'] = False
         connection_kwargs = dict(self.connection_kwargs)
         connection_kwargs.update(kwargs)
         return redis_class(connection_pool=connection_pool_class(
